@@ -12,7 +12,7 @@ alloy-signer-local = "0.3.1"
 alloy-contract = "0.3.1"
 alloy-provider = {version = " 0.3.1", features = ["ws"]}
 alloy-transport = "0.3.1"
-alloy-pubsub = "0.2.0"
+alloy-pubsub = "0.3.1"
 alloy-sol-types = "0.8.0"
 alloy-rpc-types = "0.3.1"
 alloy-chains = "0.1.29"
