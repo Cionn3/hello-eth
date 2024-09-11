@@ -25,6 +25,7 @@ pub use revm;
 
 pub const SUPPORTED_CHAINS: [u64; 5] = [1, 10, 56, 8453, 42161];
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChainId {
     Ethereum(u64),
     Optimism(u64),
@@ -53,6 +54,16 @@ impl ChainId {
             ChainId::BinanceSmartChain(id) => *id,
             ChainId::Base(id) => *id,
             ChainId::Arbitrum(id) => *id,
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        match self {
+            ChainId::Ethereum(_) => "Ethereum",
+            ChainId::Optimism(_) => "Optimism",
+            ChainId::BinanceSmartChain(_) => "Binance Smart Chain",
+            ChainId::Base(_) => "Base",
+            ChainId::Arbitrum(_) => "Arbitrum",
         }
     }
 }
