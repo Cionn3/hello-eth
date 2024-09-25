@@ -17,6 +17,7 @@ alloy-sol-types = "0.8.0"
 alloy-rpc-types = "0.3.1"
 alloy-chains = "0.1.29"
 alloy-network = "0.3.1"
+alloy-dyn-abi = "0.8.3"
 
 # REVM
 revm = { version = "14.0.0", features = [

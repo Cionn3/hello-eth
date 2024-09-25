@@ -1,4 +1,5 @@
 pub mod logs;
+pub mod batch_request;
 
 use anyhow::anyhow;
 
