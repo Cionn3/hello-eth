@@ -78,4 +78,25 @@ impl BlockTime {
 
         Ok(start_block + blocks_to_add)
     }
+
+    pub fn is_day(&self) -> bool {
+        match self {
+            BlockTime::Days(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_hour(&self) -> bool {
+        match self {
+            BlockTime::Hours(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_block(&self) -> bool {
+        match self {
+            BlockTime::Block(_) => true,
+            _ => false,
+        }
+    }
 }

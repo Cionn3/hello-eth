@@ -10,6 +10,16 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use tokio::try_join;
 
+/// Enum  to categorize ERC20Tokens
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum TokenKind {
+    WETH,
+    WBNB,
+    StableCoin,
+    LiquidStaking,
+    Other
+}
+
 /// Represents an ERC20 Token
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ERC20Token {
@@ -19,6 +29,7 @@ pub struct ERC20Token {
     pub name: String,
     pub decimals: u8,
     pub total_supply: U256,
+    pub kind: TokenKind,
     pub icon: Option<Vec<u8>>,
 }
 
@@ -27,6 +38,7 @@ impl ERC20Token {
         client: P,
         address: Address,
         chain_id: u64,
+        kind: TokenKind
     ) -> Result<Self, anyhow::Error>
     where
         T: Transport + Clone,
@@ -46,6 +58,7 @@ impl ERC20Token {
             name,
             decimals,
             total_supply,
+            kind,
             icon: None,
         })
     }
@@ -186,6 +199,7 @@ impl Default for ERC20Token {
             decimals: 18,
             symbol: "WETH".to_string(),
             total_supply: U256::ZERO,
+            kind: TokenKind::WETH,
             icon: None,
         }
     }

@@ -3,7 +3,7 @@ use alloy_primitives::{address, U256, utils::{parse_units, format_units}};
 use revm::db::{CacheDB, EmptyDB};
 use std::sync::Arc;
 
-use hello_eth::prelude::{AccountType, ERC20Token, ForkFactory, weth, usdc, usdt, DummyAccount, new_evm};
+use hello_eth::prelude::{AccountType, ERC20Token, TokenKind, ForkFactory, weth, usdc, usdt, DummyAccount, new_evm};
 use hello_eth::revm_utils::simulate::{can_tranfer_erc20, erc20_balance};
 
 
@@ -14,9 +14,9 @@ async fn main() -> Result<(), anyhow::Error> {
     let client = Arc::new(client);
     let chain_id = client.get_chain_id().await?;
 
-    let weth = ERC20Token::new(client.clone(), weth(chain_id)?, chain_id).await?;
-    let usdc = ERC20Token::new(client.clone(), usdc(chain_id)?, chain_id).await?;
-    let usdt = ERC20Token::new(client.clone(), usdt(chain_id)?, chain_id).await?;
+    let weth = ERC20Token::new(client.clone(), weth(chain_id)?, chain_id, TokenKind::WETH).await?;
+    let usdc = ERC20Token::new(client.clone(), usdc(chain_id)?, chain_id, TokenKind::StableCoin).await?;
+    let usdt = ERC20Token::new(client.clone(), usdt(chain_id)?, chain_id, TokenKind::StableCoin).await?;
 
     // create a dummy account and fund it with 1000 ETH
     let amount = parse_units("1000", 18)?.get_absolute();

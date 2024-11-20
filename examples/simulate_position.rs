@@ -3,7 +3,7 @@ use alloy_provider::{ProviderBuilder, Provider, WsConnect};
 
 use std::sync::Arc;
 
-use hello_eth::prelude::{UniswapV3Pool, BlockTime, ERC20Token};
+use hello_eth::prelude::{UniswapV3Pool, BlockTime, ERC20Token, TokenKind};
 use hello_eth::defi::amm::uniswap::v3::lp_provider::{simulate_position, PositionArgs};
 
 #[tokio::main]
@@ -17,8 +17,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let weth = address!("C02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
     let pool_address = address!("109830a1aaad605bbf02a9dfa7b0b92ec2fb7daa");
 
-    let token0 = ERC20Token::new(client.clone(), wst_eth, chain_id).await?;
-    let token1 = ERC20Token::new(client.clone(), weth, chain_id).await?;
+    let token0 = ERC20Token::new(client.clone(), wst_eth, chain_id, TokenKind::LiquidStaking).await?;
+    let token1 = ERC20Token::new(client.clone(), weth, chain_id, TokenKind::WETH).await?;
 
     let pool = UniswapV3Pool::new(chain_id, pool_address, 100, token0, token1);
 

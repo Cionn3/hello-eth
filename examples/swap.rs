@@ -6,7 +6,7 @@ use alloy_provider::{ProviderBuilder, Provider, WsConnect};
 
 use std::sync::Arc;
 
-use hello_eth::prelude::{UniswapV2Pool, usdc, weth, ERC20Token};
+use hello_eth::prelude::{UniswapV2Pool, usdc, weth, ERC20Token, TokenKind};
 
 
 
@@ -18,8 +18,8 @@ async fn main() -> Result<(), anyhow::Error> {
     let client = Arc::new(client);
     let chain_id = client.get_chain_id().await?;
 
-    let weth = ERC20Token::new(client.clone(), weth(chain_id)?, chain_id).await?;
-    let usdc = ERC20Token::new(client.clone(), usdc(chain_id)?, chain_id).await?;
+    let weth = ERC20Token::new(client.clone(), weth(chain_id)?, chain_id, TokenKind::WETH).await?;
+    let usdc = ERC20Token::new(client.clone(), usdc(chain_id)?, chain_id, TokenKind::StableCoin).await?;
     let pool_address = address!("b4e16d0168e52d35cacd2c6185b44281ec28c9dc");
 
     let mut pool = UniswapV2Pool::new(chain_id, pool_address, weth.clone(), usdc.clone());

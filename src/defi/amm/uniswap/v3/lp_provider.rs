@@ -1,8 +1,6 @@
 use alloy_primitives::{
     utils::{format_units, parse_units},
-    U256,
-    Uint,
-    Signed,
+    Signed, Uint, U256,
 };
 
 use alloy_rpc_types::BlockId;
@@ -31,8 +29,8 @@ use crate::{
     utils::{logs::query::get_logs_for, BlockTime},
 };
 
-use tracing::trace;
 use anyhow::Context;
+use tracing::trace;
 
 #[derive(Debug, Clone)]
 pub struct PositionArgs {
@@ -120,6 +118,8 @@ pub struct PositionResult {
 
     /// The total number of times that our position was in the range
     pub in_range: usize,
+
+    pub apr: f64,
 }
 
 impl PositionResult {
@@ -132,6 +132,8 @@ impl PositionResult {
              Latest Price of {}: ${:.2}
              Earned0: {:.2} {} (${:.2})
              Earned1: {:.2} {} (${:.2})
+             Total Earned: ${:.2}
+             APR: {:.2}%
              Buy Volume USD: {:.2}
              Sell Volume USD: {:.2}
              Total Fee0: {:.2}
@@ -153,6 +155,8 @@ impl PositionResult {
             self.earned1,
             self.token1.symbol,
             self.earned1_usd,
+            self.earned0_usd + self.earned1_usd,
+            self.apr,
             self.buy_volume_usd,
             self.sell_volume_usd,
             self.total_fee0,
@@ -284,10 +288,21 @@ where
     let fork_db = fork_factory.new_sandbox_fork();
     let mut evm = new_evm(fork_db, Some(full_block.clone()));
 
-    let fee: Uint<24, 1> = args.pool.fee.to_string().parse().context("Failed to parse fee")?;
-    let lower_tick: Signed<24, 1> = lower_tick.to_string().parse().context("Failed to parse tick")?;
-    let upper_tick: Signed<24, 1> = upper_tick.to_string().parse().context("Failed to parse tick")?;
-    
+    let fee: Uint<24, 1> = args
+        .pool
+        .fee
+        .to_string()
+        .parse()
+        .context("Failed to parse fee")?;
+    let lower_tick: Signed<24, 1> = lower_tick
+        .to_string()
+        .parse()
+        .context("Failed to parse tick")?;
+    let upper_tick: Signed<24, 1> = upper_tick
+        .to_string()
+        .parse()
+        .context("Failed to parse tick")?;
+
     let mint_params = INonfungiblePositionManager::MintParams {
         token0: args.pool.token0.address,
         token1: args.pool.token1.address,
@@ -390,6 +405,8 @@ where
             false
         };
 
+        // TODO: store big swaps in a separate struct
+
         price_ranges.push(PriceRange::new(is_in_range, pool_swap.block));
     }
 
@@ -432,6 +449,22 @@ where
     let out_of_range = price_ranges.iter().filter(|r| !r.is_in_range).count();
     let in_range = price_ranges.iter().filter(|r| r.is_in_range).count();
 
+    // calculate the APR of the position
+    let total_earned = earned0_usd + earned1_usd;
+    let mut apr = 0.0;
+
+    match block_time {
+        BlockTime::Days(days) => {
+            apr = (total_earned / args.deposit_amount) * (365.0 / days as f64) * 100.0;
+        }
+        BlockTime::Hours(hours) => {
+            apr = (total_earned / args.deposit_amount) * (8760.0 / hours as f64) * 100.0;
+        }
+        BlockTime::Block(_) => {
+            // TODO
+        }
+    }
+
     let result = PositionResult {
         token0: args.pool.token0.clone(),
         token1: args.pool.token1.clone(),
@@ -451,6 +484,7 @@ where
         failed_swaps,
         out_of_range,
         in_range,
+        apr,
     };
 
     Ok(result)
